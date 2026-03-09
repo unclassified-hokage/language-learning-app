@@ -62,8 +62,12 @@ Publish on Android and iOS app stores.
 - Schedule: Daily at 9:06 AM
 
 ## Project Status
-- Phase: BUILD — Architecture complete, Flutter scaffold next
+- Phase: BUILD — Supabase live, auth done, CI/CD deployed, home screen + lesson engine next
 - Started: 2026-03-09
+- Live web beta URL: https://unclassified-hokage.github.io/language-learning-app/
+- Every push to main auto-builds + deploys via GitHub Actions (~2 min)
+- Supabase database: 13 tables live, all RLS policies applied
+- Auth: sign-up / sign-in screen wired to Supabase
 
 ## Important Decisions Log
 | Date | Decision | Rationale |

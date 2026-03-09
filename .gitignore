@@ -4,6 +4,13 @@
 .env*.local
 secrets.json
 
+# Flutter SDK — install separately via scripts/setup.sh, never commit
+flutter/
+flutter_macos_arm64_*.zip
+flutter_linux_*.tar.xz
+flutter_windows_*.zip
+*.zip
+
 # macOS
 .DS_Store
 .AppleDouble

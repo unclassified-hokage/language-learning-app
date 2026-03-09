@@ -7,8 +7,9 @@ Publish on Android and iOS app stores.
 ## Owner
 - Name: Vivek
 - Email: viveknanda370@icloud.com
-- GitHub: TBD (local structure ready, pending GitHub connection)
-- Slack: TBD (setup in progress)
+- GitHub: https://github.com/unclassified-hokage/language-learning-app
+- Slack Workspace: language-app-updates.slack.com
+- Slack Webhook: stored in .env.local (gitignored)
 
 ## Project Goals
 - Free and open source

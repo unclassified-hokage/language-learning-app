@@ -145,14 +145,23 @@ class WelcomeScreen extends StatelessWidget {
                   // Sign in link
                   Center(
                     child: TextButton(
-                      onPressed: () {
-                        // TODO: navigate to sign in
-                      },
-                      child: Text(
-                        'Already have an account? Sign in',
-                        style: TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 14,
+                      onPressed: () => context.push('/auth?mode=signin'),
+                      child: RichText(
+                        text: TextSpan(
+                          style: TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 14,
+                          ),
+                          children: [
+                            const TextSpan(text: 'Already have an account? '),
+                            TextSpan(
+                              text: 'Sign in',
+                              style: TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),

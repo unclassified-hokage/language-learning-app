@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/auth/auth_service.dart';
 import '../../../core/theme/app_colors.dart';
 
-enum _AuthMode { signIn, signUp }
+enum _AuthMode { signIn, signUp, emailSent }
 
 class AuthScreen extends StatefulWidget {
   final bool startInSignIn;
@@ -25,6 +26,7 @@ class _AuthScreenState extends State<AuthScreen> {
   bool _loading = false;
   bool _obscurePassword = true;
   String? _error;
+  String _sentEmail = '';
 
   @override
   void initState() {
@@ -57,8 +59,21 @@ class _AuthScreenState extends State<AuthScreen> {
             : null,
       );
       if (error == null && mounted) {
-        // New user → go through language selection
-        context.go('/language-select');
+        // Check if Supabase gave us a session (email confirm disabled)
+        // or just created the user (email confirm enabled)
+        final session = Supabase.instance.client.auth.currentSession;
+        if (session != null) {
+          // Confirmed immediately → go through onboarding
+          context.go('/language-select');
+        } else {
+          // Email confirmation required → show "check inbox" screen
+          setState(() {
+            _sentEmail = _emailCtrl.text.trim();
+            _mode = _AuthMode.emailSent;
+            _loading = false;
+          });
+          return;
+        }
       }
     } else {
       error = await _authService.signIn(
@@ -88,6 +103,10 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_mode == _AuthMode.emailSent) {
+      return _buildEmailSentScreen();
+    }
+
     final isSignUp = _mode == _AuthMode.signUp;
 
     return Scaffold(
@@ -334,6 +353,139 @@ class _AuthScreenState extends State<AuthScreen> {
                       ),
                     ),
                   ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmailSentScreen() {
+    return Scaffold(
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(gradient: AppColors.heroGradient),
+          ),
+          Positioned(
+            top: -60,
+            right: -60,
+            child: Container(
+              width: 250,
+              height: 250,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.correct.withOpacity(0.1),
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 28),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 80),
+
+                  // Envelope icon
+                  Container(
+                    width: 88,
+                    height: 88,
+                    decoration: BoxDecoration(
+                      color: AppColors.correct.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(
+                        color: AppColors.correct.withOpacity(0.4),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: const Center(
+                      child: Text('📧', style: TextStyle(fontSize: 44)),
+                    ),
+                  )
+                      .animate()
+                      .scale(duration: 500.ms, curve: Curves.easeOutBack)
+                      .fadeIn(),
+
+                  const SizedBox(height: 32),
+
+                  Text(
+                    'Check your inbox!',
+                    style: Theme.of(context)
+                        .textTheme
+                        .displaySmall
+                        ?.copyWith(fontWeight: FontWeight.w700),
+                    textAlign: TextAlign.center,
+                  ).animate(delay: 200.ms).fadeIn(duration: 500.ms),
+
+                  const SizedBox(height: 16),
+
+                  Text(
+                    'We sent a confirmation link to',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                    textAlign: TextAlign.center,
+                  ).animate(delay: 300.ms).fadeIn(),
+
+                  const SizedBox(height: 6),
+
+                  Text(
+                    _sentEmail,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                    textAlign: TextAlign.center,
+                  ).animate(delay: 350.ms).fadeIn(),
+
+                  const SizedBox(height: 12),
+
+                  Text(
+                    'Click the link in the email to activate\nyour account, then sign in below.',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textMuted,
+                          height: 1.5,
+                        ),
+                    textAlign: TextAlign.center,
+                  ).animate(delay: 400.ms).fadeIn(),
+
+                  const SizedBox(height: 48),
+
+                  // Sign in button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _mode = _AuthMode.signIn;
+                          _error = null;
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text(
+                        'Sign In Now',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ).animate(delay: 500.ms).fadeIn().slideY(begin: 0.3),
+
+                  const SizedBox(height: 16),
+
+                  TextButton(
+                    onPressed: () => context.go('/'),
+                    child: Text(
+                      'Back to home',
+                      style: TextStyle(color: AppColors.textMuted),
+                    ),
+                  ).animate(delay: 600.ms).fadeIn(),
                 ],
               ),
             ),

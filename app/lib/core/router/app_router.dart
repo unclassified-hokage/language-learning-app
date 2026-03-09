@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../features/auth/screens/auth_screen.dart';
 import '../../features/onboarding/screens/welcome_screen.dart';
 import '../../features/onboarding/screens/language_select_screen.dart';
 import '../../features/onboarding/screens/goal_screen.dart';
@@ -14,11 +16,39 @@ import '../../features/vocabulary/screens/vocabulary_review_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../../shared/models/scenario.dart';
 
+// Routes that do NOT require authentication
+const _publicRoutes = ['/', '/auth', '/language-select', '/goal'];
+
 class AppRouter {
   static final GoRouter router = GoRouter(
     initialLocation: '/',
     debugLogDiagnostics: false,
+    redirect: (context, state) {
+      final session = Supabase.instance.client.auth.currentSession;
+      final isLoggedIn = session != null;
+      final path = state.matchedLocation;
+
+      // Logged-in user hitting the welcome or auth screen → send home
+      if (isLoggedIn && (path == '/' || path == '/auth')) {
+        return '/home';
+      }
+      // Not logged-in user hitting a protected route → welcome screen
+      if (!isLoggedIn && !_publicRoutes.contains(path)) {
+        return '/';
+      }
+      return null;
+    },
     routes: [
+      // ── Auth ──────────────────────────────────────────────────────
+      GoRoute(
+        path: '/auth',
+        name: 'auth',
+        builder: (context, state) {
+          final signIn = state.uri.queryParameters['mode'] == 'signin';
+          return AuthScreen(startInSignIn: signIn);
+        },
+      ),
+
       // ── Onboarding ────────────────────────────────────────────────
       GoRoute(
         path: '/',

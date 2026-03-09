@@ -20,6 +20,7 @@ class AppColors {
   static const Color textPrimary = Color(0xFFFFFFFF);
   static const Color textSecondary = Color(0xFFB0B8D4);
   static const Color textMuted = Color(0xFF6B7A99);
+  static const Color textHint = Color(0xFF6B7A99);   // alias for textMuted
 
   // ── Functional ────────────────────────────────────────────────────
   static const Color correct = Color(0xFF4CAF82);           // Success green

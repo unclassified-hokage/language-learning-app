@@ -45,6 +45,7 @@ CREATE POLICY "languages_public_read" ON public.languages FOR SELECT USING (TRUE
 
 -- Seed initial languages
 INSERT INTO public.languages (id, name, native_name, flag_emoji, script, is_tonal, difficulty) VALUES
+  ('en', 'English',    'English',   '🇬🇧', 'latin',      FALSE, 1),
   ('es', 'Spanish',    'Español',   '🇪🇸', 'latin',      FALSE, 1),
   ('fr', 'French',     'Français',  '🇫🇷', 'latin',      FALSE, 2),
   ('ja', 'Japanese',   '日本語',    '🇯🇵', 'cjk',        FALSE, 4),
